@@ -1,30 +1,36 @@
 import { api } from '../api.js'
-import { header, row, dim, bold, cyan } from '../format.js'
+import { header, row, dim, bold } from '../format.js'
 
 const LABELS = {
-  population:      'População',
-  gdp_per_capita:  'PIB per capita',
-  unemployment:    'Desemprego',
-  inflation:       'Inflação',
-  gdp_growth:      'Crescimento PIB',
-  birth_rate:      'Taxa de natalidade',
-  life_expectancy: 'Esperança de vida',
+  population:        'População',
+  gdp_per_capita:    'PIB per capita',
+  gdp:               'PIB (total)',
+  unemployment:      'Desemprego',
+  unemployment_rate: 'Desemprego',
+  inflation:         'Inflação',
+  gdp_growth:        'Crescimento PIB',
+  birth_rate:        'Taxa de natalidade',
+  death_rate:        'Taxa de mortalidade',
+  life_expectancy:   'Esperança de vida',
 }
 
-const UNITS = {
-  population:      'hab',
-  gdp_per_capita:  'EUR/hab',
-  unemployment:    '%',
-  inflation:       '%',
-  gdp_growth:      '%',
-  birth_rate:      'por 1000 hab',
-  life_expectancy: 'anos',
+const UNITS_MAP = {
+  population:        'hab',
+  gdp_per_capita:    'EUR/hab',
+  gdp:               'M EUR',
+  unemployment:      '%',
+  unemployment_rate: '%',
+  inflation:         '%',
+  gdp_growth:        '%',
+  birth_rate:        'por 1000 hab',
+  death_rate:        'por 1000 hab',
+  life_expectancy:   'anos',
 }
 
 function fmt(value, key) {
   if (value == null) return 'n/a'
   if (key === 'population') return Number(value).toLocaleString('pt-PT')
-  if (key === 'gdp_per_capita') return Number(value).toLocaleString('pt-PT')
+  if (key === 'gdp' || key === 'gdp_per_capita') return Number(value).toLocaleString('pt-PT')
   return String(value)
 }
 
@@ -38,32 +44,28 @@ export async function stats(args) {
   const data = await api.ineStats(params)
   if (json) return console.log(JSON.stringify(data, null, 2))
 
-  const items = data.data || data.stats || []
+  // Each item = { indicator, label, unit, data: [{year, value}...] }
+  const items = data.data || []
 
-  header(`Estatísticas — Portugal (INE / Eurostat)`)
+  header('Estatísticas — Portugal (INE / Eurostat)')
+  console.log()
 
-  if (!items.length && data.value != null) {
-    // Single indicator response
-    const key = data.indicator || indicator || 'value'
+  if (!items.length) {
+    console.log(dim('  Sem dados disponíveis.'))
     console.log()
-    row(LABELS[key] || key, fmt(data.value, key), UNITS[key] || '')
-    if (data.year) console.log(dim(`  Ano: ${data.year}`))
-  } else if (items.length) {
-    console.log()
-    for (const item of items) {
-      const key   = item.indicator || item.key || ''
-      const label = LABELS[key] || item.label || key
-      const val   = item.value ?? item.latest ?? null
-      const unit  = UNITS[key] || item.unit || ''
-      const year  = item.year ? dim(` (${item.year})`) : ''
-      row(label + year, fmt(val, key), unit)
-    }
-  } else {
-    // Raw dump
-    for (const [k, v] of Object.entries(data)) {
-      if (typeof v === 'object') continue
-      row(LABELS[k] || k, fmt(v, k), UNITS[k] || '')
-    }
+    return
+  }
+
+  for (const item of items) {
+    const key    = item.indicator || ''
+    const label  = LABELS[key] || item.label || key
+    const unit   = UNITS_MAP[key] || item.unit || ''
+    const series = item.data || []
+    const latest = series[series.length - 1] || {}
+    const val    = latest.value ?? null
+    const year   = latest.year || ''
+
+    row(`${label} ${dim(`(${year})`)}`, fmt(val, key), unit)
   }
 
   console.log()

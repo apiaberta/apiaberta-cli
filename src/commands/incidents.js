@@ -37,12 +37,13 @@ export async function incidents(args) {
 
   for (const inc of items.slice(0, limit)) {
     const label = inc.type || inc.natureza || inc.tipo || 'Ocorrência'
-    const loc   = inc.location || inc.local || inc.municipio || ''
-    const dist  = inc.district || inc.distrito || ''
-    const time  = inc.date || inc.dataHora || inc.updated_at || ''
+    // Location can be a string or nested object
+    const locObj = typeof inc.location === 'object' ? inc.location : null
+    const loc    = locObj ? locObj.address || [locObj.freguesia, locObj.concelho, locObj.district].filter(Boolean).join(', ')
+                          : (inc.location || inc.local || '')
+    const time   = inc.datetime || inc.date || inc.dataHora || ''
     const timeStr = time ? `  ${dim(new Date(time).toLocaleTimeString('pt-PT'))}` : ''
-
-    const place = [loc, dist].filter(Boolean).join(', ')
+    const place  = loc
 
     console.log(`  ${severity(label)}  ${bold(label)}`)
     if (place) console.log(`  ${dim('  📍 ' + place + timeStr)}`)
