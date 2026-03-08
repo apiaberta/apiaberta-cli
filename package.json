@@ -1,0 +1,23 @@
+{
+  "name": "apiaberta",
+  "version": "1.0.0",
+  "description": "CLI for the API Aberta platform — access Portuguese public data from the terminal",
+  "type": "module",
+  "bin": {
+    "apiaberta": "./bin/apiaberta.js"
+  },
+  "scripts": {
+    "test": "node bin/apiaberta.js --help"
+  },
+  "keywords": ["portugal", "open-data", "api", "cli", "fuel", "weather", "ipma"],
+  "author": "API Aberta <hello@apiaberta.pt>",
+  "license": "MIT",
+  "homepage": "https://apiaberta.pt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/apiaberta/apiaberta-cli.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
