@@ -34,7 +34,7 @@ export const api = {
   fuelStations: (params) => request('/fuel/stations', params),
 
   // IPMA (weather)
-  ipmaForecast: (params) => request('/ipma/forecast', params),
+  ipmaForecast: (params) => request('/ipma/forecasts', params),
   ipmaAlerts:   ()       => request('/ipma/warnings'),
 
   // ANPC (civil protection)
