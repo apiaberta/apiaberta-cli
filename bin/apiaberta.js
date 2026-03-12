@@ -68,6 +68,9 @@ function printHelp() {
     weather      Previsão do tempo (IPMA)
     incidents    Ocorrências proteção civil (ANEPC)
     stats        Estatísticas de Portugal (INE/Eurostat)
+    bdp-rates    Taxas de juro BCE (Banco de Portugal)
+    bdp-lending  Taxas de crédito e depósitos (BdP)
+    geo          Dados geográficos — distritos, municípios, códigos postais
     status       Estado da plataforma API Aberta
 
   ${'\x1b[2m'}Opções globais:${'\x1b[0m'}
@@ -89,6 +92,12 @@ function printHelp() {
   ${'\x1b[2m'}stats:${'\x1b[0m'}
     --indicator=<nome>  Indicador (population, gdp_per_capita, unemployment…)
 
+  ${'\x1b[2m'}geo:${'\x1b[0m'}
+    (sem opções)           Lista todos os distritos
+    --district=<nome>      Lista municípios do distrito
+    --municipality=<slug>  Detalhe de um município (ex: lisboa, porto)
+    --postal=<XXXX-XXX>   Lookup de código postal
+
   ${'\x1b[2m'}Variáveis de ambiente:${'\x1b[0m'}
     APIABERTA_KEY       API key gratuita em apiaberta.pt
 
@@ -98,6 +107,10 @@ function printHelp() {
     npx apiaberta weather --city=Porto
     npx apiaberta incidents
     npx apiaberta stats --indicator=unemployment
+    npx apiaberta bdp-rates
+    npx apiaberta geo
+    npx apiaberta geo --district=Lisboa
+    npx apiaberta geo --postal=1000-001
     npx apiaberta status
     npx apiaberta fuel --json | jq '.data[0]'
 
@@ -146,6 +159,21 @@ async function main() {
       case 'status': {
         const { status } = await import('../src/commands/status.js')
         await status(args)
+        break
+      }
+      case 'bdp-rates': {
+        const { bdpRates } = await import('../src/commands/bdp.js')
+        await bdpRates(args)
+        break
+      }
+      case 'bdp-lending': {
+        const { bdpLendingRates } = await import('../src/commands/bdp.js')
+        await bdpLendingRates(args)
+        break
+      }
+      case 'geo': {
+        const { geo } = await import('../src/commands/geo.js')
+        await geo(args)
         break
       }
       default:

@@ -49,4 +49,14 @@ export const api = {
 
   // Base (public contracts)
   baseContracts: (params) => request('/base/contracts', params),
+
+  // BdP (Banco de Portugal)
+  bdpRates:       () => request('/bdp/rates'),
+  bdpLendingRates: () => request('/bdp/lending-rates'),
+
+  // Geo
+  geoDistricts:     (params) => request('/geo/districts', params),
+  geoMunicipalities:(params) => request('/geo/municipalities', params),
+  geoMunicipality:  (slug)   => request(`/geo/municipalities/${slug}`),
+  geoPostal:        (code)   => request(`/geo/postal/${encodeURIComponent(code)}`),
 }
